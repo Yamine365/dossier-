@@ -17,16 +17,43 @@ const Vendre = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleFileChange = (e) => {
-    const files = Array.from(e.target.files);
-    setFormData((prev) => ({ ...prev, photos: files }));
-  };
+  //const handleFileChange = (e) => {
+    //const files = Array.from(e.target.files);
+    //setFormData((prev) => ({ ...prev, photos: files }));
+  //};
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    console.log("Annonce publiée :", formData);
-    alert("Annonce publiée avec succès !");
-  };
+  const handleSubmit = async (e) => {
+  e.preventDefault();
+
+  const data = new FormData();
+  data.append("titre", formData.titre);
+  data.append("prix", formData.prix);
+  data.append("pieces", formData.pieces);
+  data.append("chambres", formData.chambres);
+  data.append("surface", formData.surface);
+  data.append("adresse", formData.adresse);
+  data.append("description", formData.description);
+
+  // ajouter les images
+  //formData.photos.forEach((file) => data.append("photos", file));
+  // ajouter user_id si tu as un user connecté
+  data.append("user_id", "id_de_l_utilisateur");
+
+  try {
+    const response = await fetch("http://localhost:5000/api/annonce", {
+      method: "POST",
+      body: data, // pas besoin de content-type, FormData le gère
+    });
+
+    const result = await response.json();
+    console.log(result);
+    alert("Annonce publiée !");
+  } catch (err) {
+    console.error(err);
+    alert("Erreur lors de la publication !");
+  }
+};
+
 
   return (
     <div style={{ minHeight: '100vh', backgroundColor: '#f9fafb' }}>
@@ -144,7 +171,7 @@ const Vendre = () => {
                   type="text"
                   name="titre"
                   value={formData.titre}
-                  onChange={handleChange}
+                  onChange={(e) => setFormData({ ...formData, titre: e.target.value })}
                   placeholder="Ex: Maison familiale avec jardin"
                   style={{ 
                     width: '100%',
@@ -310,7 +337,7 @@ const Vendre = () => {
                   name="photos"
                   accept="image/*"
                   multiple
-                  onChange={handleFileChange}
+                  //onChange={handleFileChange}
                   style={{ display: 'none' }}
                   id="photoUpload"
                 />
